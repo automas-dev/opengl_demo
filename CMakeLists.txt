@@ -26,3 +26,4 @@ find_package(OpenGL REQUIRED)
 find_package(glm REQUIRED CONFIG)
 
 add_subdirectory(src)
+add_subdirectory(examples)
