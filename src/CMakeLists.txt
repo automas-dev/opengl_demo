@@ -1,3 +1,9 @@
 
-add_subdirectory(00_hello_window)
-add_subdirectory(01_hello_triangle)
+file(GLOB sources_list LIST_DIRECTORIES true *)
+foreach(dir ${sources_list})
+    IF(IS_DIRECTORY ${dir})
+        add_subdirectory(${dir})
+    ELSE()
+        CONTINUE()
+    ENDIF()
+endforeach()
