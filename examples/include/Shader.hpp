@@ -4,7 +4,6 @@
 // gl.h after glew.h, clang-format don't sort
 #include <GL/gl.h>
 
-#include <glm/glm.hpp>
 #include <stdexcept>
 #include <string>
 
@@ -29,7 +28,7 @@ public:
         glDeleteShader(fShader);
 
         if (!linkSuccess(program)) {
-            throw ShaderLinkException(program);
+            throw LinkException(program);
         }
     }
 
@@ -57,8 +56,7 @@ public:
         return glGetUniformLocation(program, name);
     }
 
-private:
-    class ShaderCompileException : public std::runtime_error {
+    class CompileException : public std::runtime_error {
         std::string compileError(GLuint shader) {
             GLint logSize = 0;
             glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logSize);
@@ -70,11 +68,11 @@ private:
         }
 
     public:
-        ShaderCompileException(GLuint shader)
+        CompileException(GLuint shader)
             : std::runtime_error(compileError(shader)) {}
     };
 
-    class ShaderLinkException : public std::runtime_error {
+    class LinkException : public std::runtime_error {
         std::string linkError(GLuint program) {
             GLint logSize = 0;
             glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logSize);
@@ -86,10 +84,11 @@ private:
         }
 
     public:
-        ShaderLinkException(GLuint program)
+        LinkException(GLuint program)
             : std::runtime_error(linkError(program)) {}
     };
 
+private:
     bool compileSuccess(GLuint shader) {
         GLint success = 0;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
@@ -107,7 +106,7 @@ private:
         glShaderSource(shader, 1, &shaderSource, NULL);
         glCompileShader(shader);
         if (!compileSuccess(shader)) {
-            throw ShaderCompileException(shader);
+            throw CompileException(shader);
         }
         return shader;
     }
