@@ -22,4 +22,6 @@ void initDebug() {
     // During init, enable debug output
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(MessageCallback, 0);
+
+    std::cout << "Debug messages enabled" << std::endl;
 }
