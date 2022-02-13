@@ -8,5 +8,4 @@ target_link_libraries(${TARGET}
     OpenGL::GLU
     GLEW::GLEW
     sfml-graphics
-    support
 )
