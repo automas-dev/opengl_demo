@@ -89,7 +89,7 @@ void draw_quad(const glm::vec2 & pos, const glm::vec2 & size) {
 int main() {
     const sf::ContextSettings settings(24, 1, 8, 3, 0);
     sf::RenderWindow window(sf::VideoMode(800, 600),
-                            "Hello Triangle",
+                            "Hello Quad",
                             sf::Style::Default,
                             settings);
     window.setVerticalSyncEnabled(true);
