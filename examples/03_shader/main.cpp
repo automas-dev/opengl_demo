@@ -10,15 +10,19 @@ using namespace std;
 static const char * vertexShaderSource = R"(
 #version 330 core
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aCol;
+out vec3 color;
 void main() {
     gl_Position = vec4(aPos, 1.0);
+    color = aCol;
 })";
 
 static const char * fragmentShaderSource = R"(
 #version 330 core
+in vec3 color;
 out vec4 FragColor;
 void main() {
-    FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    FragColor = vec4(color, 1.0);
 })";
 
 int main() {
@@ -49,24 +53,36 @@ int main() {
         0.0f,  0.5f,  0.0f // Top Center
     };
 
+    const float colors[] = {
+        1.0, 0.0, 0.0, // Bottom Left
+        0.0, 1.0, 0.0, // Bottom Right
+        0.0, 0.0, 1.0 // Top Center
+    };
+
     const unsigned int indices[] = {
         0, 1, 2, // First Triangle
     };
 
-    GLuint vbo, vao, ebo;
+    GLuint vbo[2], vao, ebo;
     glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
+    glGenBuffers(2, vbo);
     glGenBuffers(1, &ebo);
     glBindVertexArray(vao);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // Safe to un-bind buffer, since glEnableVertexAttribArray bound it to the vao
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -108,7 +124,7 @@ int main() {
     }
 
     glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(2, vbo);
     glDeleteBuffers(1, &ebo);
 
     window.close();
