@@ -5,6 +5,7 @@ using namespace std;
 #include <GL/glew.h>
 
 #include <SFML/Graphics.hpp>
+#include <debug.hpp>
 #include <glm/glm.hpp>
 
 static const char * vertexShaderSource = R"(
@@ -102,6 +103,8 @@ int main() {
         cerr << "glewInit failed: " << glewGetErrorString(err);
         return 1;
     }
+
+    initDebug();
 
     GLuint program = loadShader();
     if (!program)

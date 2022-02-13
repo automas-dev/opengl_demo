@@ -39,9 +39,7 @@ int main() {
         return 1;
     }
 
-#ifdef DEBUG
     initDebug();
-#endif
 
     Shader shader(vertexShaderSource, fragmentShaderSource);
 
