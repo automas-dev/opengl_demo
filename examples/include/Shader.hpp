@@ -52,7 +52,7 @@ public:
         glUseProgram(0);
     }
 
-    GLuint uniformLocation(const char * name) const {
+    GLuint uniform(const char * name) const {
         return glGetUniformLocation(program, name);
     }
 
