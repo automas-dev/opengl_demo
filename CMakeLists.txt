@@ -25,4 +25,6 @@ find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glm REQUIRED CONFIG)
 
+include_directories(stb)
+
 add_subdirectory(examples)
