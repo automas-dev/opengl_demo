@@ -46,9 +46,9 @@ public:
         other.buffer = 0;
     }
 
-    Buffer(const Buffer & other) = delete;
-    Buffer & operator=(const Buffer & other) = delete;
-    Buffer & operator=(Buffer && other) = delete;
+    Buffer(const Buffer &) = delete;
+    Buffer & operator=(const Buffer &) = delete;
+    Buffer & operator=(Buffer &&) = delete;
 
     ~Buffer() {
         if (buffer != 0)
@@ -99,10 +99,10 @@ public:
         }
     }
 
-    BufferArray(const BufferArray & other) = delete;
-    BufferArray(BufferArray && other) = delete;
-    BufferArray & operator=(const BufferArray & other) = delete;
-    BufferArray & operator=(BufferArray && other) = delete;
+    BufferArray(const BufferArray &) = delete;
+    BufferArray(BufferArray &&) = delete;
+    BufferArray & operator=(const BufferArray &) = delete;
+    BufferArray & operator=(BufferArray &&) = delete;
 
     ~BufferArray() {
         glDeleteVertexArrays(1, &array);
