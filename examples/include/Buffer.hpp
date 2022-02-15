@@ -5,9 +5,9 @@
 #include <GL/gl.h>
 
 #include <glm/glm.hpp>
+#include <iostream>
 #include <stdexcept>
 #include <vector>
-#include <iostream>
 
 struct Attribute {
     GLuint index;
@@ -29,19 +29,15 @@ struct Attribute {
 
 class Buffer {
     GLenum target;
-    Attribute attr;
     GLuint buffer;
 
 public:
-    Buffer(const Attribute & attr) : Buffer(GL_ARRAY_BUFFER, attr) {}
-
-    Buffer(GLenum target, const Attribute & attr) : target(target), attr(attr) {
+    Buffer(GLenum target = GL_ARRAY_BUFFER) : target(target) {
         glGenBuffers(1, &buffer);
     }
 
     Buffer(Buffer && other) {
         target = other.target;
-        std::swap(attr, other.attr);
         buffer = other.buffer;
         other.buffer = 0;
     }
@@ -59,10 +55,6 @@ public:
         return target;
     }
 
-    const Attribute & getAttribute() const {
-        return attr;
-    }
-
     GLuint getBufferId() const {
         return buffer;
     }
@@ -78,24 +70,47 @@ public:
     void bufferData(GLsizeiptr size, const void * data, GLenum usage = GL_STATIC_DRAW) {
         bind();
         glBufferData(target, size, data, usage);
-        attr.enable();
+    }
+};
+
+struct AttributedBuffer {
+    Attribute attrib;
+    Buffer buffer;
+
+    AttributedBuffer(const Attribute & attrib, Buffer && buffer)
+        : attrib(attrib), buffer(std::move(buffer)) {}
+
+    AttributedBuffer(AttributedBuffer && other)
+        : attrib(other.attrib), buffer(std::move(other.buffer)) {}
+
+    AttributedBuffer(const AttributedBuffer &) = delete;
+    AttributedBuffer & operator=(const AttributedBuffer &) = delete;
+    AttributedBuffer & operator=(AttributedBuffer &&) = delete;
+
+    inline void bufferData(GLsizeiptr size,
+                           const void * data,
+                           GLenum usage = GL_STATIC_DRAW) {
+        buffer.bufferData(size, data, usage);
+        attrib.enable();
     }
 };
 
 class BufferArray {
     GLuint array;
-    std::vector<Buffer> buffers;
+    std::vector<AttributedBuffer> buffers;
 
 public:
     BufferArray() {
         glGenVertexArrays(1, &array);
     }
 
-    BufferArray(std::vector<Buffer> && buffers) : buffers(std::move(buffers)) {}
+    BufferArray(std::vector<AttributedBuffer> && buffers)
+        : buffers(std::move(buffers)) {}
 
     BufferArray(const std::vector<Attribute> & attributes) : BufferArray() {
         for (auto & attr : attributes) {
-            buffers.emplace_back(GL_ARRAY_BUFFER, attr);
+            Buffer buffer(GL_ARRAY_BUFFER);
+            buffers.emplace_back(attr, std::move(buffer));
         }
     }
 
@@ -116,7 +131,7 @@ public:
         return buffers.size();
     }
 
-    std::vector<Buffer> & getBuffers() {
+    std::vector<AttributedBuffer> & getBuffers() {
         return buffers;
     }
 
