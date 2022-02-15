@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <vector>
 
@@ -98,14 +99,17 @@ struct AttributedBuffer {
 class BufferArray {
     GLuint array;
     std::vector<AttributedBuffer> buffers;
+    std::unique_ptr<Buffer> elementBuffer;
 
 public:
-    BufferArray() {
+    BufferArray() : elementBuffer(nullptr) {
         glGenVertexArrays(1, &array);
     }
 
-    BufferArray(std::vector<AttributedBuffer> && buffers)
-        : buffers(std::move(buffers)) {}
+    explicit BufferArray(std::vector<AttributedBuffer> && buffers)
+        : buffers(std::move(buffers)) {
+        BufferArray();
+    }
 
     BufferArray(const std::vector<Attribute> & attributes) : BufferArray() {
         for (auto & attr : attributes) {
@@ -148,6 +152,14 @@ public:
                     const void * data,
                     GLenum usage = GL_STATIC_DRAW) {
         buffers[index].bufferData(size, data, usage);
+    }
+
+    void bufferElements(GLsizeiptr size,
+                        const void * data,
+                        GLenum usage = GL_STATIC_DRAW) {
+        if (!elementBuffer)
+            elementBuffer = std::make_unique<Buffer>(GL_ELEMENT_ARRAY_BUFFER);
+        elementBuffer->bufferData(size, data, usage);
     }
 
     void drawArrays(GLenum mode, GLint first, GLsizei count) {

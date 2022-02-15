@@ -75,7 +75,7 @@ int main() {
     array.bind();
     array.bufferData(0, sizeof(vertices), vertices);
     array.bufferData(1, sizeof(texCoords), texCoords);
-    // array.bufferElements(sizeof(indices), indices);
+    array.bufferElements(sizeof(indices), indices);
     array.unbind();
 
     // uncomment this call to draw in wireframe polygons.
@@ -107,8 +107,8 @@ int main() {
 
         shader.bind();
         texture.bind();
-        array.drawArrays(GL_TRIANGLES, 0, 3);
-        // array.drawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+        // array.drawArrays(GL_TRIANGLES, 0, 3);
+        array.drawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
         window.display();
     }
