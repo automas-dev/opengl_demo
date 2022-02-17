@@ -72,6 +72,11 @@ public:
         bind();
         glBufferData(target, size, data, usage);
     }
+
+    void bufferSubData(GLintptr offset, GLsizeiptr size, const void * data) {
+        bind();
+        glBufferSubData(target, offset, size, data);
+    }
 };
 
 struct AttributedBuffer {
@@ -93,6 +98,10 @@ struct AttributedBuffer {
                            GLenum usage = GL_STATIC_DRAW) {
         buffer.bufferData(size, data, usage);
         attrib.enable();
+    }
+
+    inline void bufferSubData(GLintptr offset, GLsizeiptr size, const void * data) {
+        buffer.bufferSubData(offset, size, data);
     }
 };
 
@@ -154,6 +163,13 @@ public:
         buffers[index].bufferData(size, data, usage);
     }
 
+    void bufferSubData(size_t index,
+                       GLintptr offset,
+                       GLsizeiptr size,
+                       const void * data) {
+        buffers[index].bufferSubData(offset, size, data);
+    }
+
     void bufferElements(GLsizeiptr size,
                         const void * data,
                         GLenum usage = GL_STATIC_DRAW) {
@@ -162,7 +178,7 @@ public:
         elementBuffer->bufferData(size, data, usage);
     }
 
-    void drawArrays(GLenum mode, GLint first, GLsizei count) {
+    void drawArrays(GLenum mode, GLint first, GLsizei count) const {
         bind();
         glDrawArrays(mode, first, count);
     }
