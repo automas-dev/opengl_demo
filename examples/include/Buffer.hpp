@@ -112,12 +112,8 @@ class BufferArray {
 
 public:
     BufferArray() : elementBuffer(nullptr) {
-        glGenVertexArrays(1, &array);
-    }
-
-    explicit BufferArray(std::vector<AttributedBuffer> && buffers)
-        : buffers(std::move(buffers)) {
-        BufferArray();
+        if (array)
+            glGenVertexArrays(1, &array);
     }
 
     BufferArray(const std::vector<Attribute> & attributes) : BufferArray() {
@@ -127,8 +123,14 @@ public:
         }
     }
 
+    BufferArray(BufferArray && other) {
+        buffers = std::move(other.buffers);
+        elementBuffer = std::move(other.elementBuffer);
+        array = other.array;
+        other.array = 0;
+    }
+
     BufferArray(const BufferArray &) = delete;
-    BufferArray(BufferArray &&) = delete;
     BufferArray & operator=(const BufferArray &) = delete;
     BufferArray & operator=(BufferArray &&) = delete;
 
