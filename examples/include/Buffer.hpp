@@ -193,3 +193,82 @@ public:
         glDrawElements(mode, count, type, indices);
     }
 };
+
+class Quad {
+    BufferArray array;
+    float vertices[8];
+
+    const float texCoords[8] = {
+        0.0f, 1.0f, //
+        0.0f, 0.0f, //
+        1.0f, 0.0f, //
+        1.0f, 1.0f, //
+    };
+
+    const unsigned int indices[6] = {
+        0, 1, 2, //
+        0, 2, 3, //
+    };
+
+public:
+    Quad(float x = -1, float y = -1, float w = 2, float h = 2)
+        : array(std::vector<Attribute> {
+            Attribute {0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0},
+            Attribute {1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0},
+        }),
+          vertices {x, y + h, x, y, x + w, y, x + w, y + h} {
+        array.bind();
+        array.bufferData(0, sizeof(vertices), vertices);
+        array.bufferData(1, sizeof(texCoords), texCoords);
+        array.bufferElements(sizeof(indices), indices);
+        array.unbind();
+    }
+
+    void draw() const {
+        array.drawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+};
+
+[[deprecated("Use BufferArray")]] void draw_array(const float * vertices,
+                                                  const float * texCoords,
+                                                  size_t count,
+                                                  GLenum mode) {
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), vertices);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), texCoords);
+
+    glDrawArrays(mode, 0, count);
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+}
+
+[[deprecated("Use Quad")]] void draw_quad(const glm::vec2 & pos,
+                                          const glm::vec2 & size) {
+    const float vertices[] = {
+        pos.x,          pos.y + size.y, 0.0, //
+        pos.x,          pos.y,          0.0, //
+        pos.x + size.x, pos.y,          0.0, //
+
+        pos.x,          pos.y + size.y, 0.0, //
+        pos.x + size.x, pos.y,          0.0, //
+        pos.x + size.x, pos.y + size.y, 0.0, //
+    };
+
+    const float texCoords[] = {
+        0.0f, 1.0f, //
+        0.0f, 0.0f, //
+        1.0f, 0.0f, //
+
+        0.0f, 1.0f, //
+        1.0f, 0.0f, //
+        1.0f, 1.0f, //
+    };
+
+    draw_array(vertices, texCoords, 6, GL_TRIANGLES);
+}
