@@ -197,6 +197,8 @@ public:
 class Quad {
     BufferArray array;
     float vertices[8];
+    float x, y;
+    float width, height;
 
     const float texCoords[8] = {
         0.0f, 1.0f, //
@@ -210,18 +212,44 @@ class Quad {
         0, 2, 3, //
     };
 
+    void updateBuffer() {
+        vertices[0] = vertices[2] = x;
+        vertices[4] = vertices[6] = x + width;
+        vertices[1] = vertices[7] = y + height;
+        vertices[3] = vertices[5] = y;
+    }
+
 public:
     Quad(float x = -1, float y = -1, float w = 2, float h = 2)
         : array(std::vector<Attribute> {
             Attribute {0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0},
             Attribute {1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0},
         }),
-          vertices {x, y + h, x, y, x + w, y, x + w, y + h} {
+          vertices {0},
+          x(x),
+          y(y),
+          width(w),
+          height(h) {
+        updateBuffer();
         array.bind();
         array.bufferData(0, sizeof(vertices), vertices);
         array.bufferData(1, sizeof(texCoords), texCoords);
         array.bufferElements(sizeof(indices), indices);
         array.unbind();
+    }
+
+    void setPos(float x, float y) {
+        this->x = x;
+        this->y = y;
+        updateBuffer();
+        array.bufferSubData(0, 0, sizeof(vertices), vertices);
+    }
+
+    void setSize(float w, float h) {
+        width = w;
+        height = h;
+        updateBuffer();
+        array.bufferSubData(0, 0, sizeof(vertices), vertices);
     }
 
     void draw() const {
