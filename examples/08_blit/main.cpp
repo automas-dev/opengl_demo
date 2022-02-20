@@ -30,33 +30,6 @@ void main() {
     FragColor = texture(gTexture, FragTex);
 })";
 
-static const char * screenVertexShaderSource = R"(
-#version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec2 aTex;
-out vec2 FragPos;
-out vec2 FragTex;
-void main() {
-    gl_Position = vec4(aPos, 1.0);
-    FragPos = aPos.xy;
-    FragTex = aTex;
-})";
-
-static const char * screenFragmentShaderSource = R"(
-#version 330 core
-in vec2 FragPos;
-in vec2 FragTex;
-out vec4 FragColor;
-uniform sampler2D gTexture;
-uniform float t;
-void main() {
-    vec2 d = vec2(sin(t + FragPos.x * 3) * 0.1, sin(t + FragPos.y * 3) * 0.1);
-    vec2 texCoord = FragTex + vec2(d.x, 0.0);
-    vec4 c = texture(gTexture, texCoord);
-    float v = c.r * 0.2126 + c.g * 0.7152 + c.b * 0.0722;
-    FragColor = vec4(vec3(v), c.a);
-})";
-
 int main() {
     const sf::ContextSettings settings(24, 1, 8, 4, 6, sf::ContextSettings::Debug);
     sf::RenderWindow window(sf::VideoMode(800, 600),
@@ -78,8 +51,6 @@ int main() {
     initDebug();
 
     Shader shader(vertexShaderSource, fragmentShaderSource);
-    Shader screenShader(screenVertexShaderSource, screenFragmentShaderSource);
-    Shader::Uniform sst = screenShader.uniform("t");
     Texture texture = Texture::fromPath("../../../examples/res/uv.png");
 
     const float vertices[] = {
@@ -115,18 +86,6 @@ int main() {
 
     FrameBuffer fbo;
 
-    Texture fboTexture(glm::vec2(window.getSize().x, window.getSize().y),
-                       Texture::RGB,
-                       Texture::RGB,
-                       GL_FLOAT,
-                       0,
-                       Texture::Linear,
-                       Texture::Linear,
-                       Texture::Clamp,
-                       false);
-
-    fbo.attach(&fboTexture, GL_COLOR_ATTACHMENT0);
-
     int width = window.getSize().x;
     int height = window.getSize().y;
 
@@ -134,22 +93,14 @@ int main() {
 
     fbo.attach(&rbo, GL_DEPTH_STENCIL_ATTACHMENT);
 
-    // RenderBuffer rbo2(width, height, GL_RGB8);
-    // fbo.attach(&rbo2, GL_COLOR_ATTACHMENT0);
-    // glBindRenderbuffer(GL_RENDERBUFFER, rbo[1]);
-    // glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, width, height);
-    // glFramebufferRenderbuffer(GL_FRAMEBUFFER,
-    //                           GL_COLOR_ATTACHMENT0,
-    //                           GL_RENDERBUFFER,
-    //                           rbo[1]);
+    RenderBuffer rbo2(width, height, GL_RGB8);
+    fbo.attach(&rbo2, GL_COLOR_ATTACHMENT0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cerr << "FBO is not complete!" << std::endl;
         return 1;
     }
     FrameBuffer::getDefault().bind();
-
-    sf::Clock clock;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -183,15 +134,10 @@ int main() {
         FrameBuffer::getDefault().bind();
         glClear(GL_COLOR_BUFFER_BIT);
 
-        screenShader.bind();
-        sst.setValue(clock.getElapsedTime().asSeconds());
-        fboTexture.bind();
-        quad.draw();
-
-        // fbo.bind(GL_READ_FRAMEBUFFER);
-        // FrameBuffer::getDefault().bind(GL_DRAW_FRAMEBUFFER);
-        // glBlitFramebuffer(0, 0, width, height, 0, 0, width, height,
-        //                   GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        fbo.bind(GL_READ_FRAMEBUFFER);
+        FrameBuffer::getDefault().bind(GL_DRAW_FRAMEBUFFER);
+        glBlitFramebuffer(0, 0, width, height, 0, 0, width, height,
+                          GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
         window.display();
     }
