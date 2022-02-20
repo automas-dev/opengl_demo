@@ -25,6 +25,15 @@ public:
         resize(width, height);
     }
 
+    RenderBuffer(RenderBuffer && other) {
+        buffer = other.buffer;
+        other.buffer = 0;
+    }
+
+    RenderBuffer(const RenderBuffer & other) = delete;
+    RenderBuffer & operator=(const RenderBuffer & other) = delete;
+    RenderBuffer & operator=(RenderBuffer && other) = delete;
+
     ~RenderBuffer() {
         if (buffer)
             glDeleteRenderbuffers(1, &buffer);
@@ -60,6 +69,15 @@ public:
     FrameBuffer() {
         glGenFramebuffers(1, &buffer);
     }
+
+    FrameBuffer(FrameBuffer && other) {
+        buffer = other.buffer;
+        other.buffer = 0;
+    }
+
+    FrameBuffer(const FrameBuffer &) = delete;
+    FrameBuffer & operator=(const FrameBuffer &) = delete;
+    FrameBuffer & operator=(FrameBuffer &&) = delete;
 
     ~FrameBuffer() {
         if (buffer)
