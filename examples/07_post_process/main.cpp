@@ -113,7 +113,10 @@ int main() {
     // uncomment this call to draw in wireframe polygons.
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    FrameBuffer fbo;
+    int width = window.getSize().x;
+    int height = window.getSize().y;
+
+    FrameBuffer fbo(width, height);
 
     int width = window.getSize().x;
     int height = window.getSize().y;

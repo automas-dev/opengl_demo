@@ -84,10 +84,12 @@ int main() {
     // uncomment this call to draw in wireframe polygons.
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    FrameBuffer fbo;
-
     int width = window.getSize().x;
     int height = window.getSize().y;
+
+    FrameBuffer::getDefault().resize(width, height);
+
+    FrameBuffer fbo(width, height);
 
     RenderBuffer rbo(width, height, GL_DEPTH24_STENCIL8);
 
@@ -115,6 +117,9 @@ int main() {
                                               event.size.height);
                     window.setView(sf::View(visibleArea));
                     glViewport(0, 0, event.size.width, event.size.height);
+                    fbo.resize(event.size.width, event.size.height);
+                    FrameBuffer::getDefault().resize(event.size.width,
+                                                     event.size.height);
                 } break;
                 case sf::Event::Closed:
                     window.close();
@@ -134,10 +139,7 @@ int main() {
         FrameBuffer::getDefault().bind();
         glClear(GL_COLOR_BUFFER_BIT);
 
-        fbo.bind(GL_READ_FRAMEBUFFER);
-        FrameBuffer::getDefault().bind(GL_DRAW_FRAMEBUFFER);
-        glBlitFramebuffer(0, 0, width, height, 0, 0, width, height,
-                          GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        FrameBuffer::getDefault().blit(fbo);
 
         window.display();
     }
