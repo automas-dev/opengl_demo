@@ -7,6 +7,7 @@ using namespace std;
 #include <Shader.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <Buffer.hpp>
+#include <FrameBuffer.hpp>
 #include <Texture.hpp>
 #include <debug.hpp>
 
@@ -57,7 +58,7 @@ void main() {
 })";
 
 int main() {
-    const sf::ContextSettings settings(24, 1, 8, 3, 0);
+    const sf::ContextSettings settings(24, 1, 8, 4, 6, sf::ContextSettings::Debug);
     sf::RenderWindow window(sf::VideoMode(800, 600),
                             "Post Processing",
                             sf::Style::Default,
@@ -78,7 +79,7 @@ int main() {
 
     Shader shader(vertexShaderSource, fragmentShaderSource);
     Shader screenShader(screenVertexShaderSource, screenFragmentShaderSource);
-    GLuint sst = screenShader.uniform("t");
+    Shader::Uniform sst = screenShader.uniform("t");
     Texture texture = Texture::fromPath("../../../examples/res/uv.png");
 
     const float vertices[] = {
@@ -116,33 +117,40 @@ int main() {
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    Texture fboTexture(glm::vec2(window.getSize().x, window.getSize().y),
-                       Texture::RGB,
-                       Texture::RGB,
-                       GL_FLOAT,
-                       0,
-                       Texture::Linear,
-                       Texture::Linear,
-                       Texture::Clamp,
-                       false);
+    // Texture fboTexture(glm::vec2(window.getSize().x, window.getSize().y),
+    //                    Texture::RGB,
+    //                    Texture::RGB,
+    //                    GL_FLOAT,
+    //                    0,
+    //                    Texture::Linear,
+    //                    Texture::Linear,
+    //                    Texture::Clamp,
+    //                    false);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER,
-                           GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D,
-                           fboTexture.getTextureId(),
-                           0);
+    // glFramebufferTexture2D(GL_FRAMEBUFFER,
+    //                        GL_COLOR_ATTACHMENT0,
+    //                        GL_TEXTURE_2D,
+    //                        fboTexture.getTextureId(),
+    //                        0);
 
-    unsigned int rbo;
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER,
-                          GL_DEPTH24_STENCIL8,
-                          window.getSize().x,
-                          window.getSize().y);
+    int width = window.getSize().x;
+    int height = window.getSize().y;
+
+    unsigned int rbo[2];
+    glGenRenderbuffers(2, rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo[0]);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER,
                               GL_DEPTH_STENCIL_ATTACHMENT,
                               GL_RENDERBUFFER,
-                              rbo);
+                              rbo[0]);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo[1]);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                              GL_COLOR_ATTACHMENT0,
+                              GL_RENDERBUFFER,
+                              rbo[1]);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cerr << "FBO is not complete!" << std::endl;
@@ -184,16 +192,20 @@ int main() {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        screenShader.bind();
-        glUniform1f(sst, clock.getElapsedTime().asSeconds());
-        fboTexture.bind();
-        quad.draw();
+        // screenShader.bind();
+        // sst.setValue(clock.getElapsedTime().asSeconds());
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBlitFramebuffer(0, 0, width, height, 0, 0, width, height,
+                          GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        // fboTexture.bind();
+        // quad.draw();
 
         window.display();
     }
 
     glDeleteFramebuffers(1, &fbo);
-    glDeleteRenderbuffers(1, &rbo);
+    glDeleteRenderbuffers(2, rbo);
 
     window.close();
 
