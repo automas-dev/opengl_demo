@@ -113,9 +113,12 @@ int main() {
     // uncomment this call to draw in wireframe polygons.
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    GLuint fbo;
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    FrameBuffer fbo;
+    fbo.bind();
+
+    // GLuint fbo;
+    // glGenFramebuffers(1, &fbo);
+    // glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
     // Texture fboTexture(glm::vec2(window.getSize().x, window.getSize().y),
     //                    Texture::RGB,
@@ -156,7 +159,9 @@ int main() {
         std::cerr << "FBO is not complete!" << std::endl;
         return 1;
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // fbo.unbind();
+    FrameBuffer::getDefault().bind();
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     sf::Clock clock;
 
@@ -182,20 +187,25 @@ int main() {
             }
         }
 
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        fbo.bind();
+        // glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         glClear(GL_COLOR_BUFFER_BIT);
 
         shader.bind();
         texture.bind();
         array.drawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        // fbo.unbind();
+        FrameBuffer::getDefault().bind();
+        // glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // screenShader.bind();
         // sst.setValue(clock.getElapsedTime().asSeconds());
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        fbo.bind(GL_READ_FRAMEBUFFER);
+        // glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+        FrameBuffer::getDefault().bind(GL_DRAW_FRAMEBUFFER);
+        // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         glBlitFramebuffer(0, 0, width, height, 0, 0, width, height,
                           GL_COLOR_BUFFER_BIT, GL_NEAREST);
         // fboTexture.bind();
@@ -204,7 +214,7 @@ int main() {
         window.display();
     }
 
-    glDeleteFramebuffers(1, &fbo);
+    // glDeleteFramebuffers(1, &fbo);
     glDeleteRenderbuffers(2, rbo);
 
     window.close();

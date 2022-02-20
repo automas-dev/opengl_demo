@@ -65,6 +65,8 @@ public:
 private:
     GLuint buffer;
 
+    FrameBuffer(GLuint buffer) : buffer(buffer) {}
+
 public:
     FrameBuffer() {
         glGenFramebuffers(1, &buffer);
@@ -88,11 +90,16 @@ public:
         return buffer;
     }
 
-    void bind() const {
-        glBindFramebuffer(GL_FRAMEBUFFER, buffer);
+    void bind(GLenum target = GL_FRAMEBUFFER) const {
+        glBindFramebuffer(target, buffer);
     }
 
     void unbind() const {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    static const FrameBuffer & getDefault() {
+        static FrameBuffer buffer(0);
+        return buffer;
     }
 };
