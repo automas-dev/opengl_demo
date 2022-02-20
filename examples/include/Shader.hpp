@@ -4,10 +4,68 @@
 // gl.h after glew.h, clang-format don't sort
 #include <GL/gl.h>
 
+#include <glm/glm.hpp>
 #include <stdexcept>
 #include <string>
 
 class Shader {
+public:
+    class Uniform {
+        GLuint location;
+
+    public:
+        Uniform(GLuint location) : location(location) {}
+
+        GLuint getLocation() const {
+            return location;
+        }
+
+        void setValue(bool value) const {
+            glUniform1i(location, static_cast<int>(value));
+        }
+
+        void setValue(int value) const {
+            glUniform1i(location, value);
+        }
+
+        void setValue(unsigned int value) const {
+            glUniform1ui(location, value);
+        }
+
+        void setValue(float value) const {
+            glUniform1f(location, value);
+        }
+
+        void setValue(double value) const {
+            glUniform1d(location, value);
+        }
+
+        void setVec2(const glm::vec2 & value) const {
+            glUniform2fv(location, 1, &value.x);
+        }
+
+        void setVec3(const glm::vec3 & value) const {
+            glUniform3fv(location, 1, &value.x);
+        }
+
+        void setVec4(const glm::vec4 & value) const {
+            glUniform4fv(location, 1, &value.x);
+        }
+
+        void setMat2(const glm::mat2 & value) const {
+            glUniformMatrix2fv(location, 1, GL_FALSE, &value[0][0]);
+        }
+
+        void setMat3(const glm::mat3 & value) const {
+            glUniformMatrix3fv(location, 1, GL_FALSE, &value[0][0]);
+        }
+
+        void setMat4(const glm::mat4 & value) const {
+            glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+        }
+    };
+
+private:
     GLuint program;
 
 public:
@@ -33,12 +91,18 @@ public:
     }
 
     ~Shader() {
-        glDeleteProgram(program);
+        if (program)
+            glDeleteProgram(program);
     }
 
-    Shader(Shader && other) = default;
+    Shader(Shader && other) {
+        program = other.program;
+        other.program = 0;
+    }
 
-    Shader & operator=(Shader && other) = default;
+    Shader(const Shader & other) = delete;
+    Shader & operator=(const Shader & other) = delete;
+    Shader & operator=(Shader && other) = delete;
 
     GLuint getProgram() const {
         return program;
@@ -52,10 +116,12 @@ public:
         glUseProgram(0);
     }
 
-    GLuint uniform(const char * name) const {
-        return glGetUniformLocation(program, name);
+    Uniform uniform(const char * name) const {
+        GLuint location = glGetUniformLocation(program, name);
+        return Uniform(location);
     }
 
+public:
     class CompileException : public std::runtime_error {
         std::string compileError(GLuint shader) {
             GLint logSize = 0;
