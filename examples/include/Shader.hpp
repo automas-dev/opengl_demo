@@ -90,19 +90,19 @@ public:
         }
     }
 
-    ~Shader() {
-        if (program)
-            glDeleteProgram(program);
-    }
-
     Shader(Shader && other) {
         program = other.program;
         other.program = 0;
     }
 
-    Shader(const Shader & other) = delete;
-    Shader & operator=(const Shader & other) = delete;
-    Shader & operator=(Shader && other) = delete;
+    Shader(const Shader &) = delete;
+    Shader & operator=(const Shader &) = delete;
+    Shader & operator=(Shader &&) = delete;
+
+    ~Shader() {
+        if (program)
+            glDeleteProgram(program);
+    }
 
     GLuint getProgram() const {
         return program;

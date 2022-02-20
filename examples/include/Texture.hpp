@@ -134,11 +134,6 @@ public:
         resize(size);
     }
 
-    ~Texture() {
-        if (textureId)
-            glDeleteTextures(1, &textureId);
-    }
-
     Texture(Texture && other) {
         textureId = other.textureId;
         other.textureId = 0;
@@ -154,9 +149,14 @@ public:
         mipmaps = other.mipmaps;
     }
 
-    Texture(const Texture & other) = delete;
-    Texture & operator=(const Texture & other) = delete;
-    Texture & operator=(Texture && other) = delete;
+    Texture(const Texture &) = delete;
+    Texture & operator=(const Texture &) = delete;
+    Texture & operator=(Texture &&) = delete;
+
+    ~Texture() {
+        if (textureId)
+            glDeleteTextures(1, &textureId);
+    }
 
     GLuint getTextureId() const {
         return textureId;
