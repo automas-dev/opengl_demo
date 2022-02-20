@@ -53,7 +53,7 @@ void main() {
     vec2 d = vec2(sin(t + FragPos.x * 3) * 0.1, sin(t + FragPos.y * 3) * 0.1);
     vec2 texCoord = FragTex + vec2(d.x, 0.0);
     vec4 c = texture(gTexture, texCoord);
-    float v = (c.r + c.g + c.b) / 3.0;
+    float v = c.r * 0.2126 + c.g * 0.7152 + c.b * 0.0722;
     FragColor = vec4(vec3(v), c.a);
 })";
 
@@ -114,7 +114,6 @@ int main() {
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     FrameBuffer fbo;
-    fbo.bind();
 
     Texture fboTexture(glm::vec2(window.getSize().x, window.getSize().y),
                        Texture::RGB,
@@ -126,22 +125,17 @@ int main() {
                        Texture::Clamp,
                        false);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER,
-                           GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D,
-                           fboTexture.getTextureId(),
-                           0);
+    fbo.attach(&fboTexture, GL_COLOR_ATTACHMENT0);
 
     int width = window.getSize().x;
     int height = window.getSize().y;
 
-    RenderBuffer rbo(width, height, GL_RENDERBUFFER, GL_DEPTH24_STENCIL8);
+    RenderBuffer rbo(width, height, GL_DEPTH24_STENCIL8);
 
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER,
-                              GL_DEPTH_STENCIL_ATTACHMENT,
-                              GL_RENDERBUFFER,
-                              rbo.getBufferId());
+    fbo.attach(&rbo, GL_DEPTH_STENCIL_ATTACHMENT);
 
+    // RenderBuffer rbo2(width, height, GL_RGB8);
+    // fbo.attach(&rbo2, GL_COLOR_ATTACHMENT0);
     // glBindRenderbuffer(GL_RENDERBUFFER, rbo[1]);
     // glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, width, height);
     // glFramebufferRenderbuffer(GL_FRAMEBUFFER,
@@ -191,12 +185,13 @@ int main() {
 
         screenShader.bind();
         sst.setValue(clock.getElapsedTime().asSeconds());
+        fboTexture.bind();
+        quad.draw();
+
         // fbo.bind(GL_READ_FRAMEBUFFER);
         // FrameBuffer::getDefault().bind(GL_DRAW_FRAMEBUFFER);
         // glBlitFramebuffer(0, 0, width, height, 0, 0, width, height,
         //                   GL_COLOR_BUFFER_BIT, GL_NEAREST);
-        fboTexture.bind();
-        quad.draw();
 
         window.display();
     }

@@ -162,6 +162,10 @@ public:
         return textureId;
     }
 
+    GLenum getTarget() const {
+        return target;
+    }
+
     const glm::uvec2 & getSize() const {
         return size;
     }

@@ -12,15 +12,12 @@
 
 #include "Texture.hpp"
 
-
 class RenderBuffer {
     GLuint buffer;
-    GLenum target;
     GLenum internal;
 
 public:
-    RenderBuffer(int width, int height, GLenum target, GLenum internal)
-        : target(target), internal(internal) {
+    RenderBuffer(int width, int height, GLenum internal) : internal(internal) {
         glGenRenderbuffers(1, &buffer);
         resize(width, height);
     }
@@ -45,8 +42,7 @@ public:
 
     void resize(int width, int height) const {
         bind();
-        glRenderbufferStorage(target, internal, width, height);
-        unbind();
+        glRenderbufferStorage(GL_RENDERBUFFER, internal, width, height);
     }
 
     void bind() const {
@@ -59,17 +55,42 @@ public:
 };
 
 class FrameBuffer {
-public:
-    struct Attachment {};
+    struct Attachment {
+        enum Type {
+            TEXTURE,
+            RENDER_BUFFER,
+        };
 
-private:
+        union {
+            Texture * texture;
+            RenderBuffer * buffer;
+        };
+        Type type;
+        GLenum attachment;
+
+        Attachment(Texture * texture, GLenum attachment)
+            : texture(texture), type(TEXTURE), attachment(attachment) {}
+
+        Attachment(RenderBuffer * buffer, GLenum attachment)
+            : buffer(buffer), type(RENDER_BUFFER), attachment(attachment) {}
+
+        void resize(int width, int height) {
+            if (type == TEXTURE)
+                texture->resize({width, height});
+            else
+                buffer->resize(width, height);
+        }
+    };
+
     GLuint buffer;
+    std::vector<Attachment> attachments;
 
     FrameBuffer(GLuint buffer) : buffer(buffer) {}
 
 public:
     FrameBuffer() {
         glGenFramebuffers(1, &buffer);
+        bind();
     }
 
     FrameBuffer(FrameBuffer && other) {
@@ -88,6 +109,30 @@ public:
 
     GLuint getBufferId() const {
         return buffer;
+    }
+
+    void attach(Texture * texture, GLenum attachment = GL_COLOR_ATTACHMENT0) {
+        attachments.emplace_back(texture, attachment);
+        glFramebufferTexture2D(GL_FRAMEBUFFER,
+                               attachment,
+                               texture->getTarget(),
+                               texture->getTextureId(),
+                               0);
+    }
+
+    void attach(RenderBuffer * buffer,
+                GLenum attachment = GL_DEPTH_STENCIL_ATTACHMENT) {
+        attachments.emplace_back(buffer, attachment);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                  attachment,
+                                  GL_RENDERBUFFER,
+                                  buffer->getBufferId());
+    }
+
+    void resize(int width, int height) {
+        for (auto & att : attachments) {
+            att.resize(width, height);
+        }
     }
 
     void bind(GLenum target = GL_FRAMEBUFFER) const {
