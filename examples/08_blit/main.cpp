@@ -115,10 +115,7 @@ int main() {
 
     FrameBuffer fbo;
 
-    int width = window.getSize().x;
-    int height = window.getSize().y;
-
-    Texture fboTexture(glm::vec2(width, height),
+    Texture fboTexture(glm::vec2(window.getSize().x, window.getSize().y),
                        Texture::RGB,
                        Texture::RGB,
                        GL_FLOAT,
@@ -130,8 +127,21 @@ int main() {
 
     fbo.attach(&fboTexture, GL_COLOR_ATTACHMENT0);
 
+    int width = window.getSize().x;
+    int height = window.getSize().y;
+
     RenderBuffer rbo(width, height, GL_DEPTH24_STENCIL8);
+
     fbo.attach(&rbo, GL_DEPTH_STENCIL_ATTACHMENT);
+
+    // RenderBuffer rbo2(width, height, GL_RGB8);
+    // fbo.attach(&rbo2, GL_COLOR_ATTACHMENT0);
+    // glBindRenderbuffer(GL_RENDERBUFFER, rbo[1]);
+    // glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, width, height);
+    // glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+    //                           GL_COLOR_ATTACHMENT0,
+    //                           GL_RENDERBUFFER,
+    //                           rbo[1]);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cerr << "FBO is not complete!" << std::endl;
@@ -177,6 +187,11 @@ int main() {
         sst.setValue(clock.getElapsedTime().asSeconds());
         fboTexture.bind();
         quad.draw();
+
+        // fbo.bind(GL_READ_FRAMEBUFFER);
+        // FrameBuffer::getDefault().bind(GL_DRAW_FRAMEBUFFER);
+        // glBlitFramebuffer(0, 0, width, height, 0, 0, width, height,
+        //                   GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
         window.display();
     }
