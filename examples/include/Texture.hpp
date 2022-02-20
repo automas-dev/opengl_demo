@@ -135,12 +135,28 @@ public:
     }
 
     ~Texture() {
-        glDeleteTextures(1, &textureId);
+        if (textureId)
+            glDeleteTextures(1, &textureId);
     }
 
-    Texture(Texture && other) = default;
+    Texture(Texture && other) {
+        textureId = other.textureId;
+        other.textureId = 0;
+        size = other.size;
+        internal = other.internal;
+        format = other.format;
+        type = other.type;
+        samples = other.samples;
+        target = other.target;
+        magFilter = other.magFilter;
+        minFilter = other.minFilter;
+        wrap = other.wrap;
+        mipmaps = other.mipmaps;
+    }
 
-    Texture & operator=(Texture && other) = default;
+    Texture(const Texture & other) = delete;
+    Texture & operator=(const Texture & other) = delete;
+    Texture & operator=(Texture && other) = delete;
 
     GLuint getTextureId() const {
         return textureId;
