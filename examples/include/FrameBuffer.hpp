@@ -24,14 +24,25 @@ public:
         resize(width, height);
     }
 
-    RenderBuffer(RenderBuffer && other) {
-        buffer = other.buffer;
+    RenderBuffer(RenderBuffer && other)
+        : buffer(other.buffer),
+          internal(other.internal),
+          width(other.width),
+          height(other.height) {
         other.buffer = 0;
     }
 
-    RenderBuffer(const RenderBuffer & other) = delete;
-    RenderBuffer & operator=(const RenderBuffer & other) = delete;
-    RenderBuffer & operator=(RenderBuffer && other) = delete;
+    RenderBuffer & operator=(RenderBuffer && other) {
+        buffer = other.buffer;
+        other.buffer = 0;
+        internal = other.internal;
+        width = other.width;
+        height = other.height;
+        return *this;
+    }
+
+    RenderBuffer(const RenderBuffer &) = delete;
+    RenderBuffer & operator=(const RenderBuffer &) = delete;
 
     ~RenderBuffer() {
         if (buffer)
@@ -106,16 +117,25 @@ public:
         bind();
     }
 
-    FrameBuffer(FrameBuffer && other) {
+    FrameBuffer(FrameBuffer && other)
+        : buffer(other.buffer),
+          attachments(std::move(other.attachments)),
+          width(other.width),
+          height(other.height) {
+        other.buffer = 0;
+    }
+
+    FrameBuffer & operator=(FrameBuffer && other) {
         buffer = other.buffer;
         other.buffer = 0;
+        attachments = std::move(other.attachments);
         width = other.width;
         height = other.height;
+        return *this;
     }
 
     FrameBuffer(const FrameBuffer &) = delete;
     FrameBuffer & operator=(const FrameBuffer &) = delete;
-    FrameBuffer & operator=(FrameBuffer &&) = delete;
 
     ~FrameBuffer() {
         if (buffer)

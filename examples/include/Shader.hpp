@@ -90,14 +90,18 @@ public:
         }
     }
 
-    Shader(Shader && other) {
+    Shader(Shader && other) : program(other.program) {
+        other.program = 0;
+    }
+
+    Shader & operator=(Shader && other) {
         program = other.program;
         other.program = 0;
+        return *this;
     }
 
     Shader(const Shader &) = delete;
     Shader & operator=(const Shader &) = delete;
-    Shader & operator=(Shader &&) = delete;
 
     ~Shader() {
         if (program)

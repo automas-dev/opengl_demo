@@ -37,15 +37,19 @@ public:
         glGenBuffers(1, &buffer);
     }
 
-    Buffer(Buffer && other) {
+    Buffer(Buffer && other) : target(other.target), buffer(other.buffer) {
+        other.buffer = 0;
+    }
+
+    Buffer & operator=(Buffer && other) {
         target = other.target;
         buffer = other.buffer;
         other.buffer = 0;
+        return *this;
     }
 
     Buffer(const Buffer &) = delete;
     Buffer & operator=(const Buffer &) = delete;
-    Buffer & operator=(Buffer &&) = delete;
 
     ~Buffer() {
         if (buffer != 0)
@@ -89,9 +93,14 @@ struct AttributedBuffer {
     AttributedBuffer(AttributedBuffer && other)
         : attrib(other.attrib), buffer(std::move(other.buffer)) {}
 
+    AttributedBuffer & operator=(AttributedBuffer && other) {
+        attrib = other.attrib;
+        buffer = std::move(other.buffer);
+        return *this;
+    }
+
     AttributedBuffer(const AttributedBuffer &) = delete;
     AttributedBuffer & operator=(const AttributedBuffer &) = delete;
-    AttributedBuffer & operator=(AttributedBuffer &&) = delete;
 
     inline void bufferData(GLsizeiptr size,
                            const void * data,
@@ -123,16 +132,23 @@ public:
         }
     }
 
-    BufferArray(BufferArray && other) {
-        buffers = std::move(other.buffers);
-        elementBuffer = std::move(other.elementBuffer);
+    BufferArray(BufferArray && other)
+        : array(other.array),
+          buffers(std::move(other.buffers)),
+          elementBuffer(std::move(other.elementBuffer)) {
+        other.array = 0;
+    }
+
+    BufferArray & operator=(BufferArray && other) {
         array = other.array;
         other.array = 0;
+        buffers = std::move(other.buffers);
+        elementBuffer = std::move(other.elementBuffer);
+        return *this;
     }
 
     BufferArray(const BufferArray &) = delete;
     BufferArray & operator=(const BufferArray &) = delete;
-    BufferArray & operator=(BufferArray &&) = delete;
 
     ~BufferArray() {
         glDeleteVertexArrays(1, &array);

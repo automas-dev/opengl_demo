@@ -134,7 +134,22 @@ public:
         resize(size);
     }
 
-    Texture(Texture && other) {
+    Texture(Texture && other)
+        : textureId(other.textureId),
+          size(other.size),
+          internal(other.internal),
+          format(other.format),
+          type(other.type),
+          samples(other.samples),
+          target(other.target),
+          magFilter(other.magFilter),
+          minFilter(other.minFilter),
+          wrap(other.wrap),
+          mipmaps(other.mipmaps) {
+        other.textureId = 0;
+    }
+
+    Texture & operator=(Texture && other) {
         textureId = other.textureId;
         other.textureId = 0;
         size = other.size;
@@ -147,11 +162,11 @@ public:
         minFilter = other.minFilter;
         wrap = other.wrap;
         mipmaps = other.mipmaps;
+        return *this;
     }
 
     Texture(const Texture &) = delete;
     Texture & operator=(const Texture &) = delete;
-    Texture & operator=(Texture &&) = delete;
 
     ~Texture() {
         if (textureId)
