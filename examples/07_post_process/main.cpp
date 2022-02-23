@@ -101,7 +101,7 @@ int main() {
     Attribute a0 {0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0};
     Attribute a1 {1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0};
 
-    BufferArray array(std::vector<Attribute> {a0, a1});
+    BufferArray array(std::vector<std::vector<Attribute>> {{a0}, {a1}});
     array.bind();
     array.bufferData(0, sizeof(vertices), vertices);
     array.bufferData(1, sizeof(texCoords), texCoords);
@@ -117,9 +117,6 @@ int main() {
     int height = window.getSize().y;
 
     FrameBuffer fbo(width, height);
-
-    int width = window.getSize().x;
-    int height = window.getSize().y;
 
     Texture fboTexture(glm::vec2(width, height),
                        Texture::RGB,

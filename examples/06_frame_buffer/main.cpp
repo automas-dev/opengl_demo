@@ -82,7 +82,7 @@ int main() {
     Attribute a0 {0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0};
     Attribute a1 {1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0};
 
-    BufferArray array(std::vector<Attribute> {a0, a1});
+    BufferArray array(std::vector<std::vector<Attribute>> {{a0}, {a1}});
     array.bind();
     array.bufferData(0, sizeof(vertices), vertices);
     array.bufferData(1, sizeof(texCoords), texCoords);

@@ -84,17 +84,17 @@ public:
 };
 
 struct AttributedBuffer {
-    Attribute attrib;
+    std::vector<Attribute> attrib;
     Buffer buffer;
 
-    AttributedBuffer(const Attribute & attrib, Buffer && buffer)
+    AttributedBuffer(const std::vector<Attribute> & attrib, Buffer && buffer)
         : attrib(attrib), buffer(std::move(buffer)) {}
 
     AttributedBuffer(AttributedBuffer && other)
-        : attrib(other.attrib), buffer(std::move(other.buffer)) {}
+        : attrib(std::move(other.attrib)), buffer(std::move(other.buffer)) {}
 
     AttributedBuffer & operator=(AttributedBuffer && other) {
-        attrib = other.attrib;
+        attrib = std::move(other.attrib);
         buffer = std::move(other.buffer);
         return *this;
     }
@@ -106,7 +106,9 @@ struct AttributedBuffer {
                            const void * data,
                            GLenum usage = GL_STATIC_DRAW) {
         buffer.bufferData(size, data, usage);
-        attrib.enable();
+        for (auto & a : attrib) {
+            a.enable();
+        }
     }
 
     inline void bufferSubData(GLintptr offset, GLsizeiptr size, const void * data) {
@@ -125,7 +127,8 @@ public:
             glGenVertexArrays(1, &array);
     }
 
-    BufferArray(const std::vector<Attribute> & attributes) : BufferArray() {
+    BufferArray(const std::vector<std::vector<Attribute>> & attributes)
+        : BufferArray() {
         for (auto & attr : attributes) {
             Buffer buffer(GL_ARRAY_BUFFER);
             buffers.emplace_back(attr, std::move(buffer));
@@ -237,9 +240,9 @@ class Quad {
 
 public:
     Quad(float x = -1, float y = -1, float w = 2, float h = 2)
-        : array(std::vector<Attribute> {
-            Attribute {0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0},
-            Attribute {1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0},
+        : array(std::vector<std::vector<Attribute>> {
+            {Attribute {0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0}},
+            {Attribute {1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0}},
         }),
           vertices {0},
           x(x),
