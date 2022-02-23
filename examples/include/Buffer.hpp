@@ -123,8 +123,7 @@ class BufferArray {
 
 public:
     BufferArray() : elementBuffer(nullptr) {
-        if (array)
-            glGenVertexArrays(1, &array);
+        glGenVertexArrays(1, &array);
     }
 
     BufferArray(const std::vector<std::vector<Attribute>> & attributes)
@@ -154,7 +153,8 @@ public:
     BufferArray & operator=(const BufferArray &) = delete;
 
     ~BufferArray() {
-        glDeleteVertexArrays(1, &array);
+        if (array)
+            glDeleteVertexArrays(1, &array);
     }
 
     GLuint getArrayId() const {
