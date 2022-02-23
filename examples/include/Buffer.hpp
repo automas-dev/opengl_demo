@@ -122,12 +122,9 @@ class BufferArray {
     std::unique_ptr<Buffer> elementBuffer;
 
 public:
-    BufferArray() : elementBuffer(nullptr) {
-        glGenVertexArrays(1, &array);
-    }
-
     BufferArray(const std::vector<std::vector<Attribute>> & attributes)
-        : BufferArray() {
+        : elementBuffer(nullptr) {
+        glGenVertexArrays(1, &array);
         for (auto & attr : attributes) {
             Buffer buffer(GL_ARRAY_BUFFER);
             buffers.emplace_back(attr, std::move(buffer));
