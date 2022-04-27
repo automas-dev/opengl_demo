@@ -38,7 +38,7 @@ void main() {
 int main() {
     const sf::ContextSettings settings(24, 1, 8, 3, 0);
     sf::RenderWindow window(sf::VideoMode(800, 600),
-                            "Buffer",
+                            "Transform",
                             sf::Style::Default,
                             settings);
     window.setVerticalSyncEnabled(true);
