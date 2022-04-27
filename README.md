@@ -35,6 +35,7 @@ cd build/examples/00_hello_window
 - 07_post_process
 - 08_blit
 - 09_transform
+- 10_instanced
 
 ## License
 

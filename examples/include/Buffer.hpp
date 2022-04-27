@@ -17,9 +17,11 @@ struct Attribute {
     GLboolean normalized;
     GLsizei stride;
     const void * pointer;
+    GLuint divisor = 0;
 
     void enable() const {
         glVertexAttribPointer(index, size, type, normalized, stride, pointer);
+        glVertexAttribDivisor(index, divisor);
         glEnableVertexAttribArray(index);
     }
 
@@ -201,12 +203,29 @@ public:
         glDrawArrays(mode, first, count);
     }
 
+    void drawArraysInstanced(GLenum mode,
+                             GLint first,
+                             GLsizei count,
+                             GLsizei primcount) const {
+        bind();
+        glDrawArraysInstanced(mode, first, count, primcount);
+    }
+
     void drawElements(GLenum mode,
                       GLsizei count,
                       GLenum type,
                       const void * indices) const {
         bind();
         glDrawElements(mode, count, type, indices);
+    }
+
+    void drawElementsInstanced(GLenum mode,
+                               GLsizei count,
+                               GLenum type,
+                               const void * indices,
+                               GLsizei primcount) const {
+        bind();
+        glDrawElementsInstanced(mode, count, type, indices, primcount);
     }
 };
 
