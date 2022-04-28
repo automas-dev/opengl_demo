@@ -10,6 +10,8 @@ using namespace std;
 #include <FrameBuffer.hpp>
 #include <Texture.hpp>
 #include <debug.hpp>
+#include <glm/glm.hpp>
+using namespace glm;
 
 static const char * vertexShaderSource = R"(
 #version 330 core
@@ -101,7 +103,7 @@ int main() {
     Attribute a0 {0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0};
     Attribute a1 {1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0};
 
-    BufferArray array(std::vector<std::vector<Attribute>> {{a0}, {a1}});
+    BufferArray array(vector<vector<Attribute>> {{a0}, {a1}});
     array.bind();
     array.bufferData(0, sizeof(vertices), vertices);
     array.bufferData(1, sizeof(texCoords), texCoords);
@@ -118,7 +120,7 @@ int main() {
 
     FrameBuffer fbo(width, height);
 
-    Texture fboTexture(glm::vec2(width, height),
+    Texture fboTexture(vec2(width, height),
                        Texture::RGB,
                        Texture::RGB,
                        GL_FLOAT,
@@ -134,7 +136,7 @@ int main() {
     fbo.attach(&rbo, GL_DEPTH_STENCIL_ATTACHMENT);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "FBO is not complete!" << std::endl;
+        cerr << "FBO is not complete!" << endl;
         return 1;
     }
     FrameBuffer::getDefault().bind();

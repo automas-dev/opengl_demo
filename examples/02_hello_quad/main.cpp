@@ -7,6 +7,7 @@ using namespace std;
 #include <SFML/Graphics.hpp>
 #include <debug.hpp>
 #include <glm/glm.hpp>
+using namespace glm;
 
 static const char * vertexShaderSource = R"(
 #version 330 core
@@ -62,9 +63,9 @@ static GLuint loadShader() {
     return program;
 }
 
-void draw_array(const std::vector<glm::vec3> & vertices, GLenum mode) {
+void draw_array(const vector<vec3> & vertices, GLenum mode) {
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3),
                           &vertices[0].x);
 
     glDrawArrays(mode, 0, vertices.size());
@@ -72,15 +73,15 @@ void draw_array(const std::vector<glm::vec3> & vertices, GLenum mode) {
     glDisableVertexAttribArray(0);
 }
 
-void draw_quad(const glm::vec2 & pos, const glm::vec2 & size) {
-    std::vector<glm::vec3> vertices {
-        glm::vec3(pos.x, pos.y + size.y, 0.0),
-        glm::vec3(pos.x, pos.y, 0.0),
-        glm::vec3(pos.x + size.x, pos.y, 0.0),
+void draw_quad(const vec2 & pos, const vec2 & size) {
+    vector<vec3> vertices {
+        vec3(pos.x, pos.y + size.y, 0.0),
+        vec3(pos.x, pos.y, 0.0),
+        vec3(pos.x + size.x, pos.y, 0.0),
 
-        glm::vec3(pos.x, pos.y + size.y, 0.0),
-        glm::vec3(pos.x + size.x, pos.y, 0.0),
-        glm::vec3(pos.x + size.x, pos.y + size.y, 0.0),
+        vec3(pos.x, pos.y + size.y, 0.0),
+        vec3(pos.x + size.x, pos.y, 0.0),
+        vec3(pos.x + size.x, pos.y + size.y, 0.0),
     };
 
     draw_array(vertices, GL_TRIANGLES);

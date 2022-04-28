@@ -9,6 +9,8 @@ using namespace std;
 #include <Buffer.hpp>
 #include <Texture.hpp>
 #include <debug.hpp>
+#include <glm/glm.hpp>
+using namespace glm;
 
 static const char * vertexShaderSource = R"(
 #version 330 core
@@ -74,12 +76,12 @@ int main() {
         0, 1, 2, // First Triangle
     };
 
-    glm::vec2 translations[100];
+    vec2 translations[100];
     int index = 0;
     float offset = 0.1f;
     for (int y = -10; y < 10; y += 2) {
         for (int x = -10; x < 10; x += 2) {
-            glm::vec2 translation;
+            vec2 translation;
             translation.x = (float)x / 10.0f + offset;
             translation.y = (float)y / 10.0f + offset;
             translations[index++] = translation;
@@ -90,7 +92,7 @@ int main() {
     Attribute a1 {1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0};
     Attribute a2 {2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0, 1};
 
-    BufferArray array(std::vector<std::vector<Attribute>> {{a0}, {a1}, {a2}});
+    BufferArray array(vector<vector<Attribute>> {{a0}, {a1}, {a2}});
     array.bind();
     array.bufferData(0, sizeof(vertices), vertices);
     array.bufferData(1, sizeof(texCoords), texCoords);
