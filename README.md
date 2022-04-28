@@ -6,7 +6,7 @@ A collection of simple OpenGL examples and wrapper classes.
 
 ```sh
 git clone https://github.com/twh2898/opengl_demo.git --recurse-submodules
-cd glpp
+cd opengl_demo
 mkdir build
 cd build
 cmake ..
