@@ -170,6 +170,14 @@ public:
                                   buffer->getBufferId());
     }
 
+    int getWidth() const {
+        return width;
+    }
+
+    int getHeight() const {
+        return height;
+    }
+
     void resize(int width, int height) {
         this->width = width;
         this->height = height;
