@@ -124,6 +124,10 @@ class BufferArray {
     std::unique_ptr<Buffer> elementBuffer;
 
 public:
+    BufferArray() : elementBuffer(nullptr) {
+        glGenVertexArrays(1, &array);
+    }
+
     BufferArray(const std::vector<std::vector<Attribute>> & attributes)
         : elementBuffer(nullptr) {
         glGenVertexArrays(1, &array);
@@ -162,6 +166,11 @@ public:
 
     std::size_t size() const {
         return buffers.size();
+    }
+
+    void addBuffer(const vector<Attribute> & attributes) {
+        Buffer buffer(GL_ARRAY_BUFFER);
+        buffers.emplace_back(attributes, std::move(buffer));
     }
 
     const std::vector<AttributedBuffer> & getBuffers() const {
