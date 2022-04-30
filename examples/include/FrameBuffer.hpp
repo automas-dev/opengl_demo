@@ -178,6 +178,10 @@ public:
         return height;
     }
 
+    const std::vector<Attachment> & getAttachments() const {
+        return attachments;
+    }
+
     void resize(int width, int height) {
         this->width = width;
         this->height = height;
