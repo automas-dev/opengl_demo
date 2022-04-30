@@ -164,6 +164,10 @@ public:
         return buffers.size();
     }
 
+    const std::vector<AttributedBuffer> & getBuffers() const {
+        return buffers;
+    }
+
     std::vector<AttributedBuffer> & getBuffers() {
         return buffers;
     }
