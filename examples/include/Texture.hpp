@@ -177,6 +177,10 @@ public:
         return textureId;
     }
 
+    GLsizei getSamples() const {
+        return samples;
+    }
+
     GLenum getTarget() const {
         return target;
     }
