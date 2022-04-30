@@ -129,12 +129,15 @@ public:
     }
 
     BufferArray(const std::vector<std::vector<Attribute>> & attributes)
-        : elementBuffer(nullptr) {
-        glGenVertexArrays(1, &array);
+        : BufferArray() {
         for (auto & attr : attributes) {
             Buffer buffer(GL_ARRAY_BUFFER);
             buffers.emplace_back(attr, std::move(buffer));
         }
+    }
+
+    BufferArray(std::vector<Buffer> && buffers) : BufferArray() {
+        buffers = std::move(buffers);
     }
 
     BufferArray(BufferArray && other)
