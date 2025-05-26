@@ -5,7 +5,7 @@ A collection of simple OpenGL examples and wrapper classes.
 ## Building
 
 ```sh
-git clone https://github.com/twh2898/opengl_demo.git --recurse-submodules
+git clone https://github.com/automas-dev/opengl_demo.git --recurse-submodules
 cd opengl_demo
 mkdir build
 cd build
